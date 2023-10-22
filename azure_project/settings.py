@@ -26,8 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
-    'azure_content.apps.AzureContentConfig', 
-    
+    'azure_content.apps.AzureContentConfig',
+
 ]
 
 MIDDLEWARE = [
@@ -38,6 +38,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'opencensus.ext.django.middleware.OpencensusMiddleware',
 ]
 
 ROOT_URLCONF = 'azure_project.urls'
@@ -66,7 +67,7 @@ WSGI_APPLICATION = 'azure_project.wsgi.application'
 
 DATABASES = {
     'default': {
-       'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
@@ -100,19 +101,31 @@ USE_I18N = True
 
 USE_TZ = True
 
-CRISPY_TEMPLATE_PACK ='bootstrap4'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = (str(BASE_DIR.joinpath('azure_content/static')),)
 STATIC_URL = '/azure_content/static/'
 
 
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+OPENCENSUS = {
+    'TRACE': {
+        'SAMPLER': 'opencensus.trace.samplers.ProbabilitySampler(rate=1)',
+        'EXPORTER': '''opencensus.ext.azure.trace_exporter.AzureExporter(
+                  connection_string='InstrumentationKey=7890b670-dc00-44d5-8710-09ed84a50373;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/',
+        )''',
+    }
+}
+
+ALLOWED_HOSTS = ['localhost',
+                 '127.0.0.1',
+                 'azureresttest1-server.postgres.database.azure.com']
